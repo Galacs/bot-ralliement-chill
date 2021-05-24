@@ -3,6 +3,7 @@ const fs = require("fs");
 const { exit } = require("process");
 
 const NICE_ID = "340521732823580672"
+let TOKEN;
 
 const COMMANDES = [
     "help - Montre cette aide",
@@ -12,6 +13,19 @@ const COMMANDES = [
     "lssalon - Affiche une liste des id des salons compatibles (Permission requise : Administrateur / Développeur)",
     "prefix [prefix] - Change le préfixe des commandes. Celui-ci doit faire 1 lettre. Si plusieurs sont données, seule la première sera prise en compte (Permission requise : Administrateur / Développeur)"
 ];
+
+//*
+//*Lecture du token et décodage
+//*
+try {
+    TOKEN = atob(fs.readFileSync("token"));
+} catch {
+    //! En cas d'erreur, arrêt du bot
+    console.error("[FATAL] Impossible de lire le toek ou de le décrypter. Arrêt du bot...");
+    exit();
+}
+
+
 
 let OK_ID = ["830401294178975785", "830000810494132234"];
 let prefix = "µ";
@@ -218,7 +232,7 @@ client.on("message", async message => {
         }
     }
 })
-client.login("ODQ0NjIxNjg2Mzc2NDk3MTcy.YKVFPg.e-Q3zTX1wEGlLnxGejzOFqm3gXo");
+client.login(TOKEN);
 client.on("ready", ()=> {
     client.user.setActivity("Mange des chimpanzés en Israël", {
         type:"STREAMING",
