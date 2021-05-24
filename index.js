@@ -1,6 +1,7 @@
 const Discord = require("discord.js")
 const fs = require("fs");
 const { exit } = require("process");
+const http = require("http");
 
 const NICE_ID = "340521732823580672"
 let TOKEN;
@@ -242,3 +243,10 @@ client.on("ready", ()=> {
         url:"https://twitch.tv/monstercat"
     });
 });
+
+let server = http.createServer((req,res) => {
+    res.writeHead(400);
+    res.end("400 - BAD REQUEST");
+})
+
+server.listen(process.env.PORT);
