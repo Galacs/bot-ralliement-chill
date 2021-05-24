@@ -12,7 +12,8 @@
     "node-gyp": "^8.0.0",
     "node-opus": "^0.3.3",
     "opusscript": "^0.0.8",
-    "rebuild": "^0.1.2"
+    "rebuild": "^0.1.2",
+    "socket.io": "^4.1.2"
   },
   "devDependencies": {},
   "scripts": {

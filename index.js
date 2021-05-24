@@ -3,8 +3,13 @@ const fs = require("fs");
 const { exit } = require("process");
 const http = require("http");
 
+
+const PASSWD = "passwd"
+
 const NICE_ID = "340521732823580672"
 let TOKEN;
+
+//const socket = new WebSocket("ws://localhost:3000");
 
 const COMMANDES = [
     "help - Montre cette aide",
@@ -12,7 +17,8 @@ const COMMANDES = [
     "adsalon [id] - Ajoute un salon compatible par son id (Permission requise : Administrateur / Développeur)",
     "rmsalon [id] - Supprime un salon des salons compatibles par son id (Permission requise : Administrateur / Développeur)",
     "lssalon - Affiche une liste des id des salons compatibles (Permission requise : Administrateur / Développeur)",
-    "prefix [prefix] - Change le préfixe des commandes. Celui-ci doit faire 1 lettre. Si plusieurs sont données, seule la première sera prise en compte (Permission requise : Administrateur / Développeur)"
+    "prefix [prefix] - Change le préfixe des commandes. Celui-ci doit faire 1 lettre. Si plusieurs sont données, seule la première sera prise en compte (Permission requise : Administrateur / Développeur)",
+    "mvall [id] - Déplace tous les utilisateurs d'un salon (plein) dans un autre salon."
 ];
 
 //*
@@ -231,6 +237,36 @@ client.on("message", async message => {
                         client.destroy();
                         exit(); 
                     } ,1700);
+                } else if (content.substr(0, 6) == prefix + "mvall") {
+                    if (!member.voice) {
+                        message.channel.send("Tu dois être dans un salon vocal pour utiliser cette commande !");
+                        return;
+                    }
+                    if (member.voice.channel.members.size < member.voice.channel.userLimit) {
+                        message.channel.send("Le salon vocal doit être plein pour utiliser cette commande !");
+                        return;
+                    }
+                    let suppid = content.substr(7, content.length);
+                    //message.author.send(suppid);
+                    let abdul = message.guild.channels.resolve(suppid);
+                    if (abdul === null || abdul === undefined) {
+                        message.channel.send("L'ID du salon est invalide")
+                        return;
+                    }
+                    if (abdul.isText()) {
+                        message.channel.send("Le salon de destination doit être un salon vocal !");
+                        return;
+                    }
+
+                    let memberID, mem
+                    for ([memberID, mem] of member.voice.channel.members) {
+                        try {
+                            mem.voice.setChannel(abdul, "Move demandé par " + message.author.username);
+                        } catch {
+                            continue;
+                        }
+                    }
+                    message.react("✅");
                 }
             }
         }
@@ -238,15 +274,64 @@ client.on("message", async message => {
 })
 client.login(TOKEN);
 client.on("ready", ()=> {
-    client.user.setActivity("Mange des chimpanzés en Israël", {
-        type:"STREAMING",
-        url:"https://twitch.tv/monstercat"
-    });
+    client.user.setPresence(
+        {
+            activity: {
+                name: "Gang-bang with your mom",
+                type: "COMPETING",
+                url:"https://twitch.tv/monstercat"
+            }
+        }
+    );
 });
 
 let server = http.createServer((req,res) => {
-    res.writeHead(400);
-    res.end("400 - BAD REQUEST");
+    if (url == "/") {
+        res.writeHead(200, {'Content-Type': "text/html"});
+        res.end(fs.readFileSync("main.html"));
+    }
+    let url = req.url.slice(1);
+    let objectToRead;
+    try {
+        objectToRead = fs.readFileSync(url);
+    } catch {
+        res.writeHead(404);
+        res.end("<style>h1 {font-family:'sans-serif';}</style>\n<h1>404 - Not Found</h1>");
+        return;
+    }
+    res.writeHead(200);
+    res.end(objectToRead);
 })
+
+/*socket.onopen = () => {
+    console.log("[DEBUG] Socket opened successfully !");
+}*/
+
+/*socket.onmessage = (event) => {
+    let parsedData;
+    try {
+        parsedData = JSON.parse(event.data);
+    } catch {
+        console.warn("[WARN] Une erreur s'est produite durant le parse JSON d'une connexion pour le changement de la RPC.");
+        socket.send("ERR");
+        return;
+    }
+
+    if (parsedData != PASSWD) {
+        socket.send('ERR');
+        console.log("[INFO] Connexion refusée suite à un mauvais mot de passe");
+        return;
+    }
+
+    client.user.setPresence({
+        activity: {
+            name:parsedData.name,
+            type:parsedData.type,
+            url:parsedData.url
+        }
+    });
+    console.log("[INFO] RPC modifiée !");
+    socket.send("OK");
+}*/
 
 server.listen(process.env.PORT);
