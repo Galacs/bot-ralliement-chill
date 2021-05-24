@@ -18,10 +18,13 @@ const COMMANDES = [
 //*Lecture du token et décodage
 //*
 try {
-    TOKEN = atob(fs.readFileSync("token"));
+    let fileData = fs.readFileSync("token");
+    let tempData = Buffer.from(fileData.toString('utf-8'), 'base64');
+    TOKEN = tempData.toString('utf-8');
+    console.log( TOKEN );
 } catch {
     //! En cas d'erreur, arrêt du bot
-    console.error("[FATAL] Impossible de lire le toek ou de le décrypter. Arrêt du bot...");
+    console.error("[FATAL] Impossible de lire le token ou de le décrypter. Arrêt du bot...");
     exit();
 }
 
