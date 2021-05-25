@@ -277,6 +277,7 @@ client.on("message", async message => {
                     }
                     member.voice.channel.join().then((connection)=> {
                         const dispatcher = connection.play("song.mp3");
+                        message.react("✅");
                         dispatcher.on("finish", end => {
                             member.voice.channel.leave();
                             return;
@@ -295,6 +296,7 @@ client.on("message", async message => {
                     }
                     member.voice.channel.join().then((connection)=> {
                         const dispatcher = connection.play("boku.mp3");
+                        message.react("✅");
                         dispatcher.on("finish", end => {
                             member.voice.channel.leave();
                             return;
@@ -321,6 +323,7 @@ client.on("message", async message => {
                     }
                     let mem = suppchannel.members.first();
                     mem.voice.channel.join().then(connection => {
+                        message.react("✅");
                         let dispatcher = connection.play("boku.mp3");
                         dispatcher.on("finish", end => {
                             mem.voice.channel.leave();
