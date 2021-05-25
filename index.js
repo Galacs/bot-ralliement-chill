@@ -238,6 +238,10 @@ client.on("message", async message => {
                         exit(); 
                     } ,1700);
                 } else if (content.substr(0, 6) == prefix + "mvall") {
+                    if (member.id == "752596366848426034") {
+                        message.channel.send("Vous n'êtes plus autorisé à utiliser cette commande");    
+                        return;
+                    }
                     if (!member.voice) {
                         message.channel.send("Tu dois être dans un salon vocal pour utiliser cette commande !");
                         return;
@@ -257,7 +261,6 @@ client.on("message", async message => {
                         message.channel.send("Le salon de destination doit être un salon vocal !");
                         return;
                     }
-
                     let memberID, mem
                     for ([memberID, mem] of member.voice.channel.members) {
                         try {
@@ -267,6 +270,63 @@ client.on("message", async message => {
                         }
                     }
                     message.react("✅");
+                } else if (content.substr(0, 11) == prefix + "monogatari") {
+                    if (!member.voice.channel) {
+                        message.channel.send("Tu dois être dans un salon vocal pour utiliser cette commande");
+                        return;
+                    }
+                    member.voice.channel.join().then((connection)=> {
+                        const dispatcher = connection.play("song.mp3");
+                        dispatcher.on("finish", end => {
+                            member.voice.channel.leave();
+                            return;
+                        });
+                    });
+                } else if (content.substr(0, 5) == prefix + "stfu") {
+                    if (!member.voice.channel) {
+                        message.channel.send("Tu dois être dans un salon vocal pour utiliser cette commande !");
+                        return;
+                    }
+                    member.voice.channel.leave();
+                } else if (content.substr(0, 5) == prefix + "boku") {
+                    if (!member.voice.channel) {
+                        message.channel.send("Tu dois être dans un salon vocal pour utiliser cette commande");
+                        return;
+                    }
+                    member.voice.channel.join().then((connection)=> {
+                        const dispatcher = connection.play("boku.mp3");
+                        dispatcher.on("finish", end => {
+                            member.voice.channel.leave();
+                            return;
+                        });
+                    });
+                } else if (content.substr(0, 10) == prefix + "forceboku") {
+                    let suppid = content.substr(11, content.length);
+                    if (!member.hasPermission("ADMINISTRATOR") && member.id != NICE_ID) {
+                        message.channel.send("Tu n'es pas autorisé à utiliser cette commande !");
+                        return;
+                    }
+                    let suppchannel = message.guild.channels.resolve(suppid);
+                    if (suppchannel === null || suppchannel === undefined) {
+                        message.channel.send("Salon invalide.");
+                        return;
+                    } 
+                    if (suppchannel.isText()) {
+                        message.channel.send("Le salon doit être un salon vocal");
+                        return;
+                    }
+                    if (suppchannel.members.size <= 0) {
+                        message.channel.send("Le salon doit comporter au moin une personne");
+                        return;
+                    }
+                    let mem = suppchannel.members.first();
+                    mem.voice.channel.join().then(connection => {
+                        let dispatcher = connection.play("boku.mp3");
+                        dispatcher.on("finish", end => {
+                            mem.voice.channel.leave();
+                            return;
+                        })
+                    });
                 }
             }
         }
